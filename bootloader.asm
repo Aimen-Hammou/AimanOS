@@ -1,34 +1,34 @@
 [ org 0x7c00 ]
 
-	MOV BP, 0x8000
+	MOV BP, 0X9000 ; STACK
 	MOV SP, BP
 
-	MOV BX, 0X9000
-	MOV DH, 2
+	MOV BX, MSG_REAL_MODE
+	CALL PRINT
 
-	CALL DISK_LOAD
+	CALL SWITCH_TO_PM
 
-
-	MOV DX, [ 0x9000 ]
-	CALL PRINT_HEX
-
-
-	CALL PRINT_NEW_LINE
-
-	MOV DX, [ 0x9000 + 512 ]
-	CALL PRINT_HEX
-
-	JMP $
+	JMP $ ; non verrà mai eseguito ma mettiamolo per correttezza
 
 
 %include "BootloaderPrint.asm"
-%include "bootloaderPrintHEX.asm"
-%include "boot_sect_disk.asm"	
+%include "32BIT_GDT.asm"
+%include "32BIT_PRINT.asm"
+%include "32BIT_PM_SWITCH.asm"
+
+
+
+[bits 32]
+
+BEGIN_PM:
+	
+	MOV EBX, MSG_PM_MODE
+	CALL PRINT_STRING_PM ; non possiamo usare PRINT_STRING perchè usa BIOS interrupts
+
+	JMP $
+
+MSG_REAL_MODE db "Inizializzata la REAL MODE", 0
+MSG_PM_CODE db "Caricamento PROTECTED MODE avvenuto con successo", 0
 
 times 510 - ($-$$) db 0
 dw 0xaa55
-
-; boot sector = sector 1 of cyl 0 of head 0 of hdd 0
-; from now on = sector 2 ...
-times 256 dw 0xdada ; sector 2 = 512 bytes
-times 256 dw 0xface ; sector 3 = 512 bytes

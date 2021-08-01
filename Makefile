@@ -1,11 +1,15 @@
 ASM = nasm
-ASM-FILES = bootloader.asm bootloaderPrint.asm bootloaderPrintHEX.asm
+ASM-FILES = bootloader.asm
 ASM-FLAGS = -f bin
 ASM-OUTPUT-FLAG = -o
 
-boot : BIN
+boot: 
+	make bin
 	qemu-system-x86_64 bootloader.bin -boot c
 
+bin: bootloader.asm
+	nasm -f bin bootloader.asm -o bootloader.bin
 
-BIN: 
-	$(ASM) $(ASM-FLAGS) bootloader.asm $(ASM-OUTPUT-FLAG) bootloader.bin
+
+clean:
+	rm -rf *.bin
